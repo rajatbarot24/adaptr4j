@@ -1,0 +1,591 @@
+# AdaptR4j policy menu — 30 named Resilience4j configurations.
+#
+# Generated to cover the Pareto front across three fault regimes:
+#   LOW:    stable network, low error, low latency
+#   MEDIUM: moderate failures, ~500ms upstream latency
+#   HIGH:   cascade risk — tight CB, low retry amplification, small bulkhead
+#
+# Used as the bandit's discrete action space (n_actions = 30).
+# Regenerate via:  python bayesian_opt.py --n-calls 120 --out policy-menu.yml
+
+policies:
+
+  # ── Tier 1: Balanced fallback (P10 — default static baseline) ──────────────
+  - id: p01
+    name: balanced-fallback
+    cb:
+      sliding_window_size: 50
+      failure_rate_threshold: 0.50
+      slow_call_rate_threshold: 1.00
+      slow_call_duration_ms: 1000
+      wait_duration_in_open_state_ms: 10000
+      permitted_calls_in_half_open_state: 5
+      minimum_number_of_calls: 10
+    retry:
+      max_attempts: 3
+      wait_duration_ms: 500
+      exponential_backoff: false
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 40
+      max_wait_duration_ms: 0
+
+  # ── Tier 2: Low-fault / high-throughput policies ───────────────────────────
+  - id: p02
+    name: high-throughput-relaxed
+    cb:
+      sliding_window_size: 100
+      failure_rate_threshold: 0.60
+      slow_call_rate_threshold: 1.00
+      slow_call_duration_ms: 2000
+      wait_duration_in_open_state_ms: 5000
+      permitted_calls_in_half_open_state: 10
+      minimum_number_of_calls: 20
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 200
+      exponential_backoff: false
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 80
+      max_wait_duration_ms: 0
+
+  - id: p03
+    name: high-throughput-moderate-retry
+    cb:
+      sliding_window_size: 80
+      failure_rate_threshold: 0.55
+      slow_call_rate_threshold: 0.90
+      slow_call_duration_ms: 1500
+      wait_duration_in_open_state_ms: 6000
+      permitted_calls_in_half_open_state: 8
+      minimum_number_of_calls: 15
+    retry:
+      max_attempts: 3
+      wait_duration_ms: 300
+      exponential_backoff: true
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 60
+      max_wait_duration_ms: 0
+
+  - id: p04
+    name: max-concurrency-no-retry
+    cb:
+      sliding_window_size: 100
+      failure_rate_threshold: 0.70
+      slow_call_rate_threshold: 1.00
+      slow_call_duration_ms: 3000
+      wait_duration_in_open_state_ms: 3000
+      permitted_calls_in_half_open_state: 10
+      minimum_number_of_calls: 20
+    retry:
+      max_attempts: 1
+      wait_duration_ms: 0
+      exponential_backoff: false
+      exponential_multiplier: 1.0
+    bulkhead:
+      max_concurrent_calls: 100
+      max_wait_duration_ms: 0
+
+  - id: p05
+    name: low-latency-fast-open
+    cb:
+      sliding_window_size: 20
+      failure_rate_threshold: 0.40
+      slow_call_rate_threshold: 0.80
+      slow_call_duration_ms: 800
+      wait_duration_in_open_state_ms: 3000
+      permitted_calls_in_half_open_state: 3
+      minimum_number_of_calls: 5
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 100
+      exponential_backoff: false
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 50
+      max_wait_duration_ms: 0
+
+  # ── Tier 3: Medium-fault / balanced policies ───────────────────────────────
+  - id: p06
+    name: medium-fault-balanced
+    cb:
+      sliding_window_size: 50
+      failure_rate_threshold: 0.45
+      slow_call_rate_threshold: 0.85
+      slow_call_duration_ms: 1000
+      wait_duration_in_open_state_ms: 8000
+      permitted_calls_in_half_open_state: 5
+      minimum_number_of_calls: 10
+    retry:
+      max_attempts: 3
+      wait_duration_ms: 400
+      exponential_backoff: true
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 40
+      max_wait_duration_ms: 100
+
+  - id: p07
+    name: medium-fault-conservative-retry
+    cb:
+      sliding_window_size: 40
+      failure_rate_threshold: 0.40
+      slow_call_rate_threshold: 0.75
+      slow_call_duration_ms: 900
+      wait_duration_in_open_state_ms: 10000
+      permitted_calls_in_half_open_state: 4
+      minimum_number_of_calls: 8
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 500
+      exponential_backoff: true
+      exponential_multiplier: 2.5
+    bulkhead:
+      max_concurrent_calls: 30
+      max_wait_duration_ms: 50
+
+  - id: p08
+    name: medium-fault-wide-window
+    cb:
+      sliding_window_size: 80
+      failure_rate_threshold: 0.50
+      slow_call_rate_threshold: 0.90
+      slow_call_duration_ms: 1200
+      wait_duration_in_open_state_ms: 7000
+      permitted_calls_in_half_open_state: 6
+      minimum_number_of_calls: 15
+    retry:
+      max_attempts: 3
+      wait_duration_ms: 350
+      exponential_backoff: false
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 45
+      max_wait_duration_ms: 0
+
+  - id: p09
+    name: medium-fault-slow-open
+    cb:
+      sliding_window_size: 60
+      failure_rate_threshold: 0.55
+      slow_call_rate_threshold: 0.95
+      slow_call_duration_ms: 1500
+      wait_duration_in_open_state_ms: 15000
+      permitted_calls_in_half_open_state: 5
+      minimum_number_of_calls: 10
+    retry:
+      max_attempts: 4
+      wait_duration_ms: 600
+      exponential_backoff: true
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 35
+      max_wait_duration_ms: 200
+
+  - id: p10
+    name: medium-fault-tight-bulkhead
+    cb:
+      sliding_window_size: 50
+      failure_rate_threshold: 0.45
+      slow_call_rate_threshold: 0.80
+      slow_call_duration_ms: 1000
+      wait_duration_in_open_state_ms: 8000
+      permitted_calls_in_half_open_state: 5
+      minimum_number_of_calls: 10
+    retry:
+      max_attempts: 3
+      wait_duration_ms: 500
+      exponential_backoff: true
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 20
+      max_wait_duration_ms: 100
+
+  # ── Tier 4: High-fault / cascade-resistant policies ────────────────────────
+  - id: p11
+    name: high-fault-tight-cb
+    cb:
+      sliding_window_size: 20
+      failure_rate_threshold: 0.30
+      slow_call_rate_threshold: 0.60
+      slow_call_duration_ms: 600
+      wait_duration_in_open_state_ms: 20000
+      permitted_calls_in_half_open_state: 2
+      minimum_number_of_calls: 5
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 1000
+      exponential_backoff: true
+      exponential_multiplier: 3.0
+    bulkhead:
+      max_concurrent_calls: 15
+      max_wait_duration_ms: 0
+
+  - id: p12
+    name: high-fault-low-raf
+    cb:
+      sliding_window_size: 30
+      failure_rate_threshold: 0.35
+      slow_call_rate_threshold: 0.70
+      slow_call_duration_ms: 700
+      wait_duration_in_open_state_ms: 15000
+      permitted_calls_in_half_open_state: 3
+      minimum_number_of_calls: 8
+    retry:
+      max_attempts: 1
+      wait_duration_ms: 0
+      exponential_backoff: false
+      exponential_multiplier: 1.0
+    bulkhead:
+      max_concurrent_calls: 20
+      max_wait_duration_ms: 0
+
+  - id: p13
+    name: high-fault-no-retry-tight
+    cb:
+      sliding_window_size: 15
+      failure_rate_threshold: 0.25
+      slow_call_rate_threshold: 0.50
+      slow_call_duration_ms: 500
+      wait_duration_in_open_state_ms: 30000
+      permitted_calls_in_half_open_state: 2
+      minimum_number_of_calls: 5
+    retry:
+      max_attempts: 1
+      wait_duration_ms: 0
+      exponential_backoff: false
+      exponential_multiplier: 1.0
+    bulkhead:
+      max_concurrent_calls: 10
+      max_wait_duration_ms: 0
+
+  - id: p14
+    name: high-fault-wide-window-no-retry
+    cb:
+      sliding_window_size: 100
+      failure_rate_threshold: 0.30
+      slow_call_rate_threshold: 0.65
+      slow_call_duration_ms: 800
+      wait_duration_in_open_state_ms: 25000
+      permitted_calls_in_half_open_state: 3
+      minimum_number_of_calls: 20
+    retry:
+      max_attempts: 1
+      wait_duration_ms: 0
+      exponential_backoff: false
+      exponential_multiplier: 1.0
+    bulkhead:
+      max_concurrent_calls: 25
+      max_wait_duration_ms: 0
+
+  - id: p15
+    name: high-fault-aggressive-open
+    cb:
+      sliding_window_size: 10
+      failure_rate_threshold: 0.20
+      slow_call_rate_threshold: 0.50
+      slow_call_duration_ms: 500
+      wait_duration_in_open_state_ms: 10000
+      permitted_calls_in_half_open_state: 2
+      minimum_number_of_calls: 5
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 2000
+      exponential_backoff: true
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 15
+      max_wait_duration_ms: 0
+
+  # ── Tier 5: Latency-spike specialised policies ─────────────────────────────
+  - id: p16
+    name: latency-spike-timeout-focus
+    cb:
+      sliding_window_size: 30
+      failure_rate_threshold: 0.50
+      slow_call_rate_threshold: 0.40
+      slow_call_duration_ms: 400
+      wait_duration_in_open_state_ms: 8000
+      permitted_calls_in_half_open_state: 3
+      minimum_number_of_calls: 8
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 300
+      exponential_backoff: false
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 30
+      max_wait_duration_ms: 50
+
+  - id: p17
+    name: latency-spike-very-tight-slow
+    cb:
+      sliding_window_size: 20
+      failure_rate_threshold: 0.45
+      slow_call_rate_threshold: 0.30
+      slow_call_duration_ms: 300
+      wait_duration_in_open_state_ms: 12000
+      permitted_calls_in_half_open_state: 3
+      minimum_number_of_calls: 5
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 500
+      exponential_backoff: true
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 25
+      max_wait_duration_ms: 100
+
+  - id: p18
+    name: latency-spike-wide-slow-threshold
+    cb:
+      sliding_window_size: 60
+      failure_rate_threshold: 0.55
+      slow_call_rate_threshold: 0.50
+      slow_call_duration_ms: 600
+      wait_duration_in_open_state_ms: 6000
+      permitted_calls_in_half_open_state: 5
+      minimum_number_of_calls: 12
+    retry:
+      max_attempts: 3
+      wait_duration_ms: 400
+      exponential_backoff: false
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 40
+      max_wait_duration_ms: 0
+
+  # ── Tier 6: Retry-amplification suppression policies ──────────────────────
+  - id: p19
+    name: raf-suppressor-minimal-retry
+    cb:
+      sliding_window_size: 50
+      failure_rate_threshold: 0.45
+      slow_call_rate_threshold: 0.80
+      slow_call_duration_ms: 1000
+      wait_duration_in_open_state_ms: 10000
+      permitted_calls_in_half_open_state: 5
+      minimum_number_of_calls: 10
+    retry:
+      max_attempts: 1
+      wait_duration_ms: 0
+      exponential_backoff: false
+      exponential_multiplier: 1.0
+    bulkhead:
+      max_concurrent_calls: 40
+      max_wait_duration_ms: 0
+
+  - id: p20
+    name: raf-suppressor-long-backoff
+    cb:
+      sliding_window_size: 40
+      failure_rate_threshold: 0.40
+      slow_call_rate_threshold: 0.75
+      slow_call_duration_ms: 900
+      wait_duration_in_open_state_ms: 8000
+      permitted_calls_in_half_open_state: 4
+      minimum_number_of_calls: 10
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 1500
+      exponential_backoff: true
+      exponential_multiplier: 3.0
+    bulkhead:
+      max_concurrent_calls: 30
+      max_wait_duration_ms: 0
+
+  # ── Tier 7: Bulkhead-focused policies ─────────────────────────────────────
+  - id: p21
+    name: bulkhead-small-tight
+    cb:
+      sliding_window_size: 50
+      failure_rate_threshold: 0.50
+      slow_call_rate_threshold: 0.90
+      slow_call_duration_ms: 1000
+      wait_duration_in_open_state_ms: 8000
+      permitted_calls_in_half_open_state: 5
+      minimum_number_of_calls: 10
+    retry:
+      max_attempts: 3
+      wait_duration_ms: 500
+      exponential_backoff: false
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 10
+      max_wait_duration_ms: 500
+
+  - id: p22
+    name: bulkhead-large-relaxed
+    cb:
+      sliding_window_size: 100
+      failure_rate_threshold: 0.60
+      slow_call_rate_threshold: 1.00
+      slow_call_duration_ms: 2000
+      wait_duration_in_open_state_ms: 5000
+      permitted_calls_in_half_open_state: 10
+      minimum_number_of_calls: 20
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 200
+      exponential_backoff: false
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 100
+      max_wait_duration_ms: 1000
+
+  # ── Tier 8: Extreme / stress-test boundary policies ────────────────────────
+  - id: p23
+    name: ultra-conservative
+    cb:
+      sliding_window_size: 10
+      failure_rate_threshold: 0.20
+      slow_call_rate_threshold: 0.30
+      slow_call_duration_ms: 300
+      wait_duration_in_open_state_ms: 60000
+      permitted_calls_in_half_open_state: 1
+      minimum_number_of_calls: 5
+    retry:
+      max_attempts: 1
+      wait_duration_ms: 0
+      exponential_backoff: false
+      exponential_multiplier: 1.0
+    bulkhead:
+      max_concurrent_calls: 5
+      max_wait_duration_ms: 0
+
+  - id: p24
+    name: ultra-aggressive
+    cb:
+      sliding_window_size: 100
+      failure_rate_threshold: 0.80
+      slow_call_rate_threshold: 1.00
+      slow_call_duration_ms: 5000
+      wait_duration_in_open_state_ms: 1000
+      permitted_calls_in_half_open_state: 20
+      minimum_number_of_calls: 30
+    retry:
+      max_attempts: 5
+      wait_duration_ms: 100
+      exponential_backoff: false
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 100
+      max_wait_duration_ms: 2000
+
+  # ── Tier 9: Network partition specialised ─────────────────────────────────
+  - id: p25
+    name: partition-tolerant-long-wait
+    cb:
+      sliding_window_size: 20
+      failure_rate_threshold: 0.30
+      slow_call_rate_threshold: 0.70
+      slow_call_duration_ms: 800
+      wait_duration_in_open_state_ms: 30000
+      permitted_calls_in_half_open_state: 2
+      minimum_number_of_calls: 5
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 3000
+      exponential_backoff: true
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 20
+      max_wait_duration_ms: 0
+
+  - id: p26
+    name: partition-tolerant-fast-recovery
+    cb:
+      sliding_window_size: 30
+      failure_rate_threshold: 0.35
+      slow_call_rate_threshold: 0.70
+      slow_call_duration_ms: 700
+      wait_duration_in_open_state_ms: 5000
+      permitted_calls_in_half_open_state: 5
+      minimum_number_of_calls: 8
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 1000
+      exponential_backoff: true
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 25
+      max_wait_duration_ms: 0
+
+  # ── Tier 10: Mixed/interpolated policies ──────────────────────────────────
+  - id: p27
+    name: interpolated-mid-a
+    cb:
+      sliding_window_size: 35
+      failure_rate_threshold: 0.42
+      slow_call_rate_threshold: 0.78
+      slow_call_duration_ms: 850
+      wait_duration_in_open_state_ms: 9000
+      permitted_calls_in_half_open_state: 4
+      minimum_number_of_calls: 9
+    retry:
+      max_attempts: 3
+      wait_duration_ms: 450
+      exponential_backoff: true
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 35
+      max_wait_duration_ms: 50
+
+  - id: p28
+    name: interpolated-mid-b
+    cb:
+      sliding_window_size: 45
+      failure_rate_threshold: 0.48
+      slow_call_rate_threshold: 0.85
+      slow_call_duration_ms: 950
+      wait_duration_in_open_state_ms: 7500
+      permitted_calls_in_half_open_state: 5
+      minimum_number_of_calls: 10
+    retry:
+      max_attempts: 3
+      wait_duration_ms: 350
+      exponential_backoff: false
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 45
+      max_wait_duration_ms: 0
+
+  - id: p29
+    name: interpolated-high-a
+    cb:
+      sliding_window_size: 25
+      failure_rate_threshold: 0.35
+      slow_call_rate_threshold: 0.65
+      slow_call_duration_ms: 650
+      wait_duration_in_open_state_ms: 12000
+      permitted_calls_in_half_open_state: 3
+      minimum_number_of_calls: 6
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 700
+      exponential_backoff: true
+      exponential_multiplier: 2.5
+    bulkhead:
+      max_concurrent_calls: 22
+      max_wait_duration_ms: 0
+
+  - id: p30
+    name: interpolated-high-b
+    cb:
+      sliding_window_size: 55
+      failure_rate_threshold: 0.38
+      slow_call_rate_threshold: 0.72
+      slow_call_duration_ms: 750
+      wait_duration_in_open_state_ms: 11000
+      permitted_calls_in_half_open_state: 4
+      minimum_number_of_calls: 11
+    retry:
+      max_attempts: 2
+      wait_duration_ms: 800
+      exponential_backoff: true
+      exponential_multiplier: 2.0
+    bulkhead:
+      max_concurrent_calls: 28
+      max_wait_duration_ms: 0

@@ -1,0 +1,60 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: service-a
+  webflux:
+    base-path: /
+
+downstream:
+  base-url: http://service-b:8081
+
+downstream-c:
+  base-url: http://service-c:8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,circuitbreakers,retries,bulkheads
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        adaptr4j.downstream.call.duration: true
+      percentiles:
+        adaptr4j.downstream.call.duration: 0.5,0.75,0.95,0.99
+  observations:
+    annotations:
+      enabled: true
+
+# Resilience4j registries are managed programmatically via PolicyReferenceHolder.
+# These defaults are only used for Spring auto-config endpoints, not for the adaptive loop.
+resilience4j:
+  circuitbreaker:
+    instances:
+      default:
+        sliding-window-size: 50
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 60s
+        permitted-number-of-calls-in-half-open-state: 5
+        minimum-number-of-calls: 10
+  retry:
+    instances:
+      default:
+        max-attempts: 3
+        wait-duration: 500ms
+  bulkhead:
+    instances:
+      default:
+        max-concurrent-calls: 40
+        max-wait-duration: 0ms

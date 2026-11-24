@@ -1,0 +1,28 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: service-c
+
+# Fault injection profile — override via env vars
+fault:
+  latency-ms: 0
+  latency-jitter-ms: 0
+  error-rate: 0.0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  observations:
+    annotations:
+      enabled: true

@@ -1,0 +1,257 @@
+# Safe policy menu (v3, Nov 2026): policies from policy-menu.yml whose circuit breaker
+# tolerates >=45% failures and whose slow-call duration exceeds the 500 ms latency SLO.
+# Stricter breakers treated SLO-compliant calls or ordinary error bursts as failures and
+# rejected almost all traffic under faults (see analysis/sweep_table.py).
+policies:
+- id: p01
+  name: balanced-fallback
+  cb:
+    sliding_window_size: 50
+    failure_rate_threshold: 0.5
+    slow_call_rate_threshold: 1.0
+    slow_call_duration_ms: 1000
+    wait_duration_in_open_state_ms: 10000
+    permitted_calls_in_half_open_state: 5
+    minimum_number_of_calls: 10
+  retry:
+    max_attempts: 3
+    wait_duration_ms: 500
+    exponential_backoff: false
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 40
+    max_wait_duration_ms: 0
+- id: p02
+  name: high-throughput-relaxed
+  cb:
+    sliding_window_size: 100
+    failure_rate_threshold: 0.6
+    slow_call_rate_threshold: 1.0
+    slow_call_duration_ms: 2000
+    wait_duration_in_open_state_ms: 5000
+    permitted_calls_in_half_open_state: 10
+    minimum_number_of_calls: 20
+  retry:
+    max_attempts: 2
+    wait_duration_ms: 200
+    exponential_backoff: false
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 80
+    max_wait_duration_ms: 0
+- id: p03
+  name: high-throughput-moderate-retry
+  cb:
+    sliding_window_size: 80
+    failure_rate_threshold: 0.55
+    slow_call_rate_threshold: 0.9
+    slow_call_duration_ms: 1500
+    wait_duration_in_open_state_ms: 6000
+    permitted_calls_in_half_open_state: 8
+    minimum_number_of_calls: 15
+  retry:
+    max_attempts: 3
+    wait_duration_ms: 300
+    exponential_backoff: true
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 60
+    max_wait_duration_ms: 0
+- id: p04
+  name: max-concurrency-no-retry
+  cb:
+    sliding_window_size: 100
+    failure_rate_threshold: 0.7
+    slow_call_rate_threshold: 1.0
+    slow_call_duration_ms: 3000
+    wait_duration_in_open_state_ms: 3000
+    permitted_calls_in_half_open_state: 10
+    minimum_number_of_calls: 20
+  retry:
+    max_attempts: 1
+    wait_duration_ms: 0
+    exponential_backoff: false
+    exponential_multiplier: 1.0
+  bulkhead:
+    max_concurrent_calls: 100
+    max_wait_duration_ms: 0
+- id: p06
+  name: medium-fault-balanced
+  cb:
+    sliding_window_size: 50
+    failure_rate_threshold: 0.45
+    slow_call_rate_threshold: 0.85
+    slow_call_duration_ms: 1000
+    wait_duration_in_open_state_ms: 8000
+    permitted_calls_in_half_open_state: 5
+    minimum_number_of_calls: 10
+  retry:
+    max_attempts: 3
+    wait_duration_ms: 400
+    exponential_backoff: true
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 40
+    max_wait_duration_ms: 100
+- id: p08
+  name: medium-fault-wide-window
+  cb:
+    sliding_window_size: 80
+    failure_rate_threshold: 0.5
+    slow_call_rate_threshold: 0.9
+    slow_call_duration_ms: 1200
+    wait_duration_in_open_state_ms: 7000
+    permitted_calls_in_half_open_state: 6
+    minimum_number_of_calls: 15
+  retry:
+    max_attempts: 3
+    wait_duration_ms: 350
+    exponential_backoff: false
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 45
+    max_wait_duration_ms: 0
+- id: p09
+  name: medium-fault-slow-open
+  cb:
+    sliding_window_size: 60
+    failure_rate_threshold: 0.55
+    slow_call_rate_threshold: 0.95
+    slow_call_duration_ms: 1500
+    wait_duration_in_open_state_ms: 15000
+    permitted_calls_in_half_open_state: 5
+    minimum_number_of_calls: 10
+  retry:
+    max_attempts: 4
+    wait_duration_ms: 600
+    exponential_backoff: true
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 35
+    max_wait_duration_ms: 200
+- id: p10
+  name: medium-fault-tight-bulkhead
+  cb:
+    sliding_window_size: 50
+    failure_rate_threshold: 0.45
+    slow_call_rate_threshold: 0.8
+    slow_call_duration_ms: 1000
+    wait_duration_in_open_state_ms: 8000
+    permitted_calls_in_half_open_state: 5
+    minimum_number_of_calls: 10
+  retry:
+    max_attempts: 3
+    wait_duration_ms: 500
+    exponential_backoff: true
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 20
+    max_wait_duration_ms: 100
+- id: p18
+  name: latency-spike-wide-slow-threshold
+  cb:
+    sliding_window_size: 60
+    failure_rate_threshold: 0.55
+    slow_call_rate_threshold: 0.5
+    slow_call_duration_ms: 600
+    wait_duration_in_open_state_ms: 6000
+    permitted_calls_in_half_open_state: 5
+    minimum_number_of_calls: 12
+  retry:
+    max_attempts: 3
+    wait_duration_ms: 400
+    exponential_backoff: false
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 40
+    max_wait_duration_ms: 0
+- id: p19
+  name: raf-suppressor-minimal-retry
+  cb:
+    sliding_window_size: 50
+    failure_rate_threshold: 0.45
+    slow_call_rate_threshold: 0.8
+    slow_call_duration_ms: 1000
+    wait_duration_in_open_state_ms: 10000
+    permitted_calls_in_half_open_state: 5
+    minimum_number_of_calls: 10
+  retry:
+    max_attempts: 1
+    wait_duration_ms: 0
+    exponential_backoff: false
+    exponential_multiplier: 1.0
+  bulkhead:
+    max_concurrent_calls: 40
+    max_wait_duration_ms: 0
+- id: p21
+  name: bulkhead-small-tight
+  cb:
+    sliding_window_size: 50
+    failure_rate_threshold: 0.5
+    slow_call_rate_threshold: 0.9
+    slow_call_duration_ms: 1000
+    wait_duration_in_open_state_ms: 8000
+    permitted_calls_in_half_open_state: 5
+    minimum_number_of_calls: 10
+  retry:
+    max_attempts: 3
+    wait_duration_ms: 500
+    exponential_backoff: false
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 10
+    max_wait_duration_ms: 500
+- id: p22
+  name: bulkhead-large-relaxed
+  cb:
+    sliding_window_size: 100
+    failure_rate_threshold: 0.6
+    slow_call_rate_threshold: 1.0
+    slow_call_duration_ms: 2000
+    wait_duration_in_open_state_ms: 5000
+    permitted_calls_in_half_open_state: 10
+    minimum_number_of_calls: 20
+  retry:
+    max_attempts: 2
+    wait_duration_ms: 200
+    exponential_backoff: false
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 100
+    max_wait_duration_ms: 1000
+- id: p24
+  name: ultra-aggressive
+  cb:
+    sliding_window_size: 100
+    failure_rate_threshold: 0.8
+    slow_call_rate_threshold: 1.0
+    slow_call_duration_ms: 5000
+    wait_duration_in_open_state_ms: 1000
+    permitted_calls_in_half_open_state: 20
+    minimum_number_of_calls: 30
+  retry:
+    max_attempts: 5
+    wait_duration_ms: 100
+    exponential_backoff: false
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 100
+    max_wait_duration_ms: 2000
+- id: p28
+  name: interpolated-mid-b
+  cb:
+    sliding_window_size: 45
+    failure_rate_threshold: 0.48
+    slow_call_rate_threshold: 0.85
+    slow_call_duration_ms: 950
+    wait_duration_in_open_state_ms: 7500
+    permitted_calls_in_half_open_state: 5
+    minimum_number_of_calls: 10
+  retry:
+    max_attempts: 3
+    wait_duration_ms: 350
+    exponential_backoff: false
+    exponential_multiplier: 2.0
+  bulkhead:
+    max_concurrent_calls: 45
+    max_wait_duration_ms: 0

@@ -1,0 +1,10 @@
+Method,Name,Error,Occurrences
+GET,/api/checkout,CatchResponseError('Slow: 1.71s'),1
+GET,/api/checkout,CatchResponseError('Slow: 1.72s'),3
+GET,/api/checkout,CatchResponseError('Slow: 1.68s'),1
+GET,/api/checkout,CatchResponseError('HTTP 500'),345
+GET,/api/checkout,CatchResponseError('Slow: 1.23s'),1
+GET,/api/checkout,CatchResponseError('Slow: 1.73s'),13
+GET,/api/checkout,CatchResponseError('Slow: 1.22s'),3
+GET,/api/checkout,CatchResponseError('Slow: 1.21s'),1
+GET,/api/checkout,CatchResponseError('Slow: 1.11s'),1

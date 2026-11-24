@@ -1,0 +1,8 @@
+# AdaptR4j policy engine and analysis (Python 3.12)
+numpy>=1.26,<2.0
+scikit-learn>=1.4,<2.0      # anomaly detector / RL explorer components
+scikit-optimize>=0.9.0      # bayesian_opt.py (offline menu generation)
+requests>=2.31
+pyyaml>=6.0
+locust>=2.24                # load generator (tested with 2.43.4)
+matplotlib>=3.8             # analysis/fig_v3.py

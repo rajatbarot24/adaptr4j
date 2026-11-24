@@ -1,0 +1,29 @@
+# build / environments
+.venv/
+__pycache__/
+*.pyc
+target/
+.idea/
+*.iml
+
+# run outputs that are large or machine-specific (results we publish are committed explicitly)
+logs/**/svc-*
+logs/**/run-*.out
+logs/**/locust-*.log
+logs/**/locust-*.out
+logs/**/locust-*.err
+logs/**/locust-*_exceptions.csv
+logs/**/watchdog*.log
+logs/**/partial/
+logs/*smoke/
+logs/diag/
+logs/prometheus-data/
+
+# LaTeX build files
+paper/**/*.aux
+paper/**/*.log
+paper/**/*.out
+paper/**/*.blg
+paper/**/*.fls
+paper/**/*.fdb_latexmk
+paper/**/*.synctex.gz
