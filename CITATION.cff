@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software or data, please cite the paper below."
+title: "AdaptR4j: safe online adaptation of Resilience4j policies"
+authors:
+  - family-names: Barot
+    given-names: Rajat M.
+  - family-names: Borkhatariya
+    given-names: Arjun S.
+repository-code: "https://github.com/rajatbarot24/adaptr4j"
+license: MIT
+preferred-citation:
+  type: article
+  title: "When Online Adaptation of Resilience Policies Hurts: Safe Exploration and Measurement Pitfalls in Resilience4j"
+  authors:
+    - family-names: Barot
+      given-names: Rajat M.
+    - family-names: Borkhatariya
+      given-names: Arjun S.
+  year: 2026
+  doi: "10.48550/arXiv.2611.32015"
+  url: "https://arxiv.org/abs/2611.32015"
+  identifiers:
+    - type: other
+      value: "arXiv:2611.32015"

@@ -1,12 +1,16 @@
 # AdaptR4j — safe online adaptation of Resilience4j policies
 
+[![arXiv](https://img.shields.io/badge/arXiv-2611.32015-b31b1b.svg)](https://arxiv.org/abs/2611.32015)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 AdaptR4j changes **Resilience4j** CircuitBreaker / Retry / Bulkhead settings **at runtime** in a
 Spring Boot 3 service and lets a **bandit** pick among complete policies from live Prometheus
 metrics. This repository contains the code, the experiment harness, **all raw experiment data**,
 and the scripts that produce every number in the accompanying paper.
 
-> **Paper (preprint):** *When Online Adaptation of Resilience Policies Hurts: Safe Exploration and
-> Measurement Pitfalls in Resilience4j* — arXiv link to be added.
+> **Paper (preprint):** R. M. Barot and A. S. Borkhatariya, *When Online Adaptation of Resilience
+> Policies Hurts: Safe Exploration and Measurement Pitfalls in Resilience4j*,
+> [arXiv:2611.32015](https://arxiv.org/abs/2611.32015), 2026.
 
 ## Key findings
 
@@ -110,7 +114,20 @@ from the same sweeps it is evaluated on. See the paper's "Open issues" section.
 
 ## Citation
 
-To be added after the preprint is posted.
+If you use AdaptR4j, its data, or the measurement checklist, please cite:
+
+```bibtex
+@misc{barot2026adaptr4j,
+  title         = {When Online Adaptation of Resilience Policies Hurts: Safe Exploration
+                   and Measurement Pitfalls in Resilience4j},
+  author        = {Barot, Rajat M. and Borkhatariya, Arjun S.},
+  year          = {2026},
+  eprint        = {2611.32015},
+  archivePrefix = {arXiv},
+  doi           = {10.48550/arXiv.2611.32015},
+  url           = {https://arxiv.org/abs/2611.32015}
+}
+```
 
 ## License
 
